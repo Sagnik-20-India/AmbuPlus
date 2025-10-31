@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Essential Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Optional: For emergency calls -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- For background location (if needed for driver tracking) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- Hardware Features (FIX for the warning) -->
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AmbuPlus"
+        tools:targetApi="31">
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".uiactivities.main.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AmbuPlus">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Login Activity -->
+        <activity
+            android:name=".uiactivities.login.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
+
+        <!-- Request Activity -->
+        <activity
+            android:name=".uiactivities.request.RequestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
+
+        <!-- Driver Activity -->
+        <activity
+            android:name=".uiactivities.driver.DriverActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
+
+        <activity
+            android:name=".uiactivities.driver.DriverRegistrationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".uiactivities.driver.DriverRatingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".uiactivities.driver.DriverProfileActivity"
+            android:exported="false" />
+
+        <!-- Add these meta-data for Google Maps -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+
+        <!-- Location service requirements -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+    </application>
+
+</manifest>

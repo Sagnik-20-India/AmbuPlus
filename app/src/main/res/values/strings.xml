@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">AmbuPlus</string>
+    <string name="app_logo">AmbuPlus Logo</string>
+
+    <!-- Login Activity -->
+    <string name="welcome_back">Welcome Back</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+
+    <!-- Main Activity -->
+    <string name="emergency_ambulance">Emergency Ambulance</string>
+    <string name="fast_reliable_service">Fast and reliable ambulance service at your fingertips</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="request_ambulance">Request Ambulance</string>
+    <string name="emergency_contacts">Emergency Contacts</string>
+    <string name="request_history">Request History</string>
+    <string name="my_profile">My Profile</string>
+    <string name="recent_requests">Recent Requests</string>
+    <string name="emergency_call">EMERGENCY CALL</string>
+
+    <!-- Request Activity -->
+    <string name="request_ambulance_title">Request Ambulance</string>
+    <string name="fill_details">Fill in the details below to request an ambulance</string>
+    <string name="patient_name">Patient Name</string>
+    <string name="patient_age">Patient Age</string>
+    <string name="contact_number">Contact Number</string>
+    <string name="pickup_location">Pickup Location</string>
+    <string name="medical_notes">Medical Notes (Optional)</string>
+    <string name="emergency_level">Emergency Level</string>
+    <string name="low">Low</string>
+    <string name="medium">Medium</string>
+    <string name="high">High</string>
+    <string name="submit_request">Request Ambulance</string>
+
+    <!-- Driver Registration Strings -->
+    <string name="driver_registration">Driver Registration</string>
+    <string name="personal_information">Personal Information</string>
+    <string name="vehicle_information">Vehicle Information</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="license_number">Driver License Number</string>
+    <string name="vehicle_number">Vehicle Registration Number</string>
+    <string name="vehicle_type">Vehicle Type (Ambulance, ICU Ambulance, etc.)</string>
+    <string name="complete_driver_registration">COMPLETE DRIVER REGISTRATION</string>
+</resources>

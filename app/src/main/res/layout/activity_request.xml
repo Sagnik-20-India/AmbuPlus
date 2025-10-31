@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Ambulance"
+        android:textSize="24sp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/etPatientName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Patient Name"
+        android:textColor="#000000"
+        android:textColorHint="#9E9E9E"
+        android:background="#F5F5F5"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/etPatientAge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Patient Age"
+        android:textColor="#000000"
+        android:textColorHint="#9E9E9E"
+        android:background="#F5F5F5"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/etContactNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contact Number"
+        android:textColor="#000000"
+        android:textColorHint="#9E9E9E"
+        android:background="#F5F5F5"
+        android:inputType="phone"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/etLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Pickup Location"
+        android:textColor="#000000"
+        android:textColorHint="#9E9E9E"
+        android:background="#F5F5F5"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/etMedicalNotes"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:hint="Medical Notes (Optional)"
+        android:textColor="#000000"
+        android:textColorHint="#9E9E9E"
+        android:background="#F5F5F5"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:layout_marginBottom="24dp"
+        android:padding="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Emergency Level"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/rgEmergencyLevel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp">
+
+        <RadioButton
+            android:id="@+id/rbLow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Low"
+            android:textColor="#000000"
+            android:buttonTint="#E53935"
+            android:minHeight="48dp" />
+
+        <RadioButton
+            android:id="@+id/rbMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Medium"
+            android:textColor="#000000"
+            android:buttonTint="#E53935"
+            android:minHeight="48dp" />
+
+        <RadioButton
+            android:id="@+id/rbHigh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="High"
+            android:textColor="#000000"
+            android:buttonTint="#E53935"
+            android:minHeight="48dp" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnSubmitRequest"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="REQUEST AMBULANCE"
+        android:background="#E53935"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
