@@ -1,5 +1,6 @@
 package com.example.ambuplus.uiactivities.request
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +10,6 @@ import com.example.ambuplus.databinding.ActivityRequestBinding
 import com.example.ambuplus.models.AuthViewModel
 import com.example.ambuplus.models.RequestViewModel
 import com.example.ambuplus.utils.ServiceLocator
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class RequestActivity : AppCompatActivity() {
@@ -48,7 +48,6 @@ class RequestActivity : AppCompatActivity() {
         // Observe isLoading StateFlow
         lifecycleScope.launch {
             requestViewModel.isLoading.collect { isLoading ->
-                // Use findViewById since the ID might be different
                 val progressBar = findViewById<android.widget.ProgressBar>(com.example.ambuplus.R.id.progressBar)
                 progressBar?.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
                 binding.btnSubmitRequest.isEnabled = !isLoading
@@ -58,11 +57,11 @@ class RequestActivity : AppCompatActivity() {
         // Observe errorMessage StateFlow
         lifecycleScope.launch {
             requestViewModel.errorMessage.collect { error ->
-                // Use findViewById since the ID might be different
                 val tvError = findViewById<android.widget.TextView>(com.example.ambuplus.R.id.tvError)
                 if (error != null) {
                     tvError?.text = error
                     tvError?.visibility = android.view.View.VISIBLE
+                    Toast.makeText(this@RequestActivity, error, Toast.LENGTH_LONG).show()
                 } else {
                     tvError?.visibility = android.view.View.GONE
                 }
@@ -75,7 +74,6 @@ class RequestActivity : AppCompatActivity() {
             submitRequest()
         }
 
-        // Use findViewById for error text view click
         val tvError = findViewById<android.widget.TextView>(com.example.ambuplus.R.id.tvError)
         tvError?.setOnClickListener {
             requestViewModel.clearError()
@@ -89,27 +87,27 @@ class RequestActivity : AppCompatActivity() {
             return
         }
 
+        android.util.Log.d("RequestActivity", "User ID: ${currentUser.id}")
+
+
         val patientName = binding.etPatientName.text.toString().trim()
         val patientAgeText = binding.etPatientAge.text.toString().trim()
         val contactNumber = binding.etContactNumber.text.toString().trim()
         val location = binding.etLocation.text.toString().trim()
         val medicalNotes = binding.etMedicalNotes.text.toString().trim()
 
-        // Get emergency level - use findViewById for radio buttons
-        val rbHigh = findViewById<android.widget.RadioButton>(com.example.ambuplus.R.id.rbHigh)
-        val rbMedium = findViewById<android.widget.RadioButton>(com.example.ambuplus.R.id.rbMedium)
-        val rbLow = findViewById<android.widget.RadioButton>(com.example.ambuplus.R.id.rbLow)
-
-        val emergencyLevel = when {
-            rbHigh?.isChecked == true -> "high"
-            rbMedium?.isChecked == true -> "medium"
-            rbLow?.isChecked == true -> "low"
+        // Get emergency level using RadioGroup
+        val emergencyLevel = when (binding.rgEmergencyLevel.checkedRadioButtonId) {
+            com.example.ambuplus.R.id.rbHigh -> "high"
+            com.example.ambuplus.R.id.rbMedium -> "medium"
+            com.example.ambuplus.R.id.rbLow -> "low"
             else -> "medium" // default
         }
 
         if (validateInputs(patientName, patientAgeText, contactNumber, location)) {
             val patientAge = if (patientAgeText.isNotEmpty()) patientAgeText.toInt() else null
 
+            // Create the request
             requestViewModel.createRequest(
                 userId = currentUser.id,
                 location = location,
@@ -120,9 +118,23 @@ class RequestActivity : AppCompatActivity() {
                 medicalNotes = medicalNotes
             )
 
-            // Show success message and finish
+            // Navigate immediately (don't wait for backend response)
             Toast.makeText(this, "Ambulance request submitted successfully!", Toast.LENGTH_SHORT).show()
-            finish()
+
+            val intent = Intent(this, RequestDetailActivity::class.java).apply {
+                putExtra("patient_name", patientName)
+                putExtra("contact_number", contactNumber)
+                putExtra("location", location)
+                putExtra("emergency_level", emergencyLevel)
+                putExtra("medical_notes", medicalNotes)
+                patientAge?.let { putExtra("patient_age", it) }
+            }
+
+            android.util.Log.d("RequestActivity", "Starting RequestDetailActivity")
+
+
+            startActivity(intent)
+            // Don't call finish() here so user can go back to edit if needed
         }
     }
 
