@@ -1,22 +1,62 @@
 package com.example.ambuplus.uiactivities.request
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.example.ambuplus.R
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.ambuplus.databinding.ActivityRequestBinding
 import com.example.ambuplus.models.AuthViewModel
 import com.example.ambuplus.models.RequestViewModel
 import com.example.ambuplus.utils.ServiceLocator
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class RequestActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRequestBinding
     private lateinit var authViewModel: AuthViewModel
     private lateinit var requestViewModel: RequestViewModel
+
+    private var selectedLatLng: LatLng? = null
+    private var selectedAddress: String = ""
+
+    // Register for activity result
+    private val mapPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            selectedLatLng = data?.getParcelableExtra(MapLocationPickerActivity.EXTRA_SELECTED_LOCATION)
+            selectedAddress = data?.getStringExtra(MapLocationPickerActivity.EXTRA_SELECTED_ADDRESS) ?: ""
+
+            binding.etLocation.setText(selectedAddress)
+        }
+    }
+
+    // Location permission launcher
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.entries.all { it.value }
+        if (allGranted) {
+            // Permission granted, open map picker
+            openMapLocationPicker()
+        } else {
+            Toast.makeText(this, "Location permission required to select pickup location", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +79,6 @@ class RequestActivity : AppCompatActivity() {
         lifecycleScope.launch {
             authViewModel.currentUser.collect { user ->
                 if (user == null) {
-                    // User not logged in, should not happen but handle gracefully
                     finish()
                 }
             }
@@ -74,10 +113,57 @@ class RequestActivity : AppCompatActivity() {
             submitRequest()
         }
 
+        // Add click listener for location field
+        binding.etLocation.setOnClickListener {
+            checkLocationPermissionAndOpenMap()
+        }
+
+        // Add a button next to location field for map selection
+        binding.etLocation.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_map_marker, 0)
+        binding.etLocation.setOnTouchListener { v, event ->
+            val drawableRight = 2
+            if (event.action == android.view.MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.etLocation.right - binding.etLocation.compoundDrawables[drawableRight].bounds.width())) {
+                    checkLocationPermissionAndOpenMap()
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+
         val tvError = findViewById<android.widget.TextView>(com.example.ambuplus.R.id.tvError)
         tvError?.setOnClickListener {
             requestViewModel.clearError()
         }
+    }
+
+    private fun checkLocationPermissionAndOpenMap() {
+        if (checkLocationPermission()) {
+            openMapLocationPicker()
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun openMapLocationPicker() {
+        val intent = Intent(this, MapLocationPickerActivity::class.java)
+        mapPickerLauncher.launch(intent)
     }
 
     private fun submitRequest() {
@@ -86,9 +172,6 @@ class RequestActivity : AppCompatActivity() {
             Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show()
             return
         }
-
-        android.util.Log.d("RequestActivity", "User ID: ${currentUser.id}")
-
 
         val patientName = binding.etPatientName.text.toString().trim()
         val patientAgeText = binding.etPatientAge.text.toString().trim()
@@ -107,34 +190,87 @@ class RequestActivity : AppCompatActivity() {
         if (validateInputs(patientName, patientAgeText, contactNumber, location)) {
             val patientAge = if (patientAgeText.isNotEmpty()) patientAgeText.toInt() else null
 
-            // Create the request
-            requestViewModel.createRequest(
-                userId = currentUser.id,
-                location = location,
-                emergencyLevel = emergencyLevel,
-                contactNumber = contactNumber,
-                patientName = patientName,
-                patientAge = patientAge,
-                medicalNotes = medicalNotes
-            )
+            // Show loading
+            binding.btnSubmitRequest.isEnabled = false
+            val progressBar = findViewById<android.widget.ProgressBar>(com.example.ambuplus.R.id.progressBar)
+            progressBar?.visibility = android.view.View.VISIBLE
 
-            // Navigate immediately (don't wait for backend response)
-            Toast.makeText(this, "Ambulance request submitted successfully!", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                try {
+                    // Create request first
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
-            val intent = Intent(this, RequestDetailActivity::class.java).apply {
-                putExtra("patient_name", patientName)
-                putExtra("contact_number", contactNumber)
-                putExtra("location", location)
-                putExtra("emergency_level", emergencyLevel)
-                putExtra("medical_notes", medicalNotes)
-                patientAge?.let { putExtra("patient_age", it) }
+                    // Include coordinates if available
+                    val locationWithCoords = if (selectedLatLng != null) {
+                        "$location|${selectedLatLng!!.latitude},${selectedLatLng!!.longitude}"
+                    } else {
+                        location
+                    }
+
+                    // Create the request object
+                    val request = com.example.ambuplus.models.Request(
+                        userId = currentUser.id,
+                        location = locationWithCoords, // Store coordinates with address
+                        emergencyLevel = emergencyLevel,
+                        contactNumber = contactNumber,
+                        timestamp = timestamp,
+                        patientName = patientName,
+                        patientAge = patientAge,
+                        medicalNotes = medicalNotes,
+                        status = "pending"
+                    )
+
+                    // Save to database
+                    ServiceLocator.requestRepository.addRequest(request)
+
+                    // Get the latest requests to find our new request
+                    val allRequests = ServiceLocator.requestRepository.getAllRequests()
+                    val newRequest = allRequests.findLast {
+                        it.userId == currentUser.id &&
+                                it.timestamp.contains(timestamp.substring(0, 10))
+                    }
+
+                    if (newRequest != null && newRequest.id != null) {
+                        // Navigate to detail page with request ID
+                        val intent = Intent(this@RequestActivity, RequestDetailActivity::class.java).apply {
+                            putExtra("patient_name", patientName)
+                            putExtra("contact_number", contactNumber)
+                            putExtra("location", location)
+                            putExtra("emergency_level", emergencyLevel)
+                            putExtra("medical_notes", medicalNotes)
+                            putExtra("request_id", newRequest.id!!)
+                            putExtra("selected_lat", selectedLatLng?.latitude)
+                            putExtra("selected_lng", selectedLatLng?.longitude)
+                            patientAge?.let { putExtra("patient_age", it) }
+                        }
+
+                        Toast.makeText(this@RequestActivity, "Ambulance request submitted successfully!", Toast.LENGTH_SHORT).show()
+                        startActivity(intent)
+                    } else {
+                        // Fallback
+                        val intent = Intent(this@RequestActivity, RequestDetailActivity::class.java).apply {
+                            putExtra("patient_name", patientName)
+                            putExtra("contact_number", contactNumber)
+                            putExtra("location", location)
+                            putExtra("emergency_level", emergencyLevel)
+                            putExtra("medical_notes", medicalNotes)
+                            putExtra("request_id", -1)
+                            putExtra("selected_lat", selectedLatLng?.latitude)
+                            putExtra("selected_lng", selectedLatLng?.longitude)
+                            patientAge?.let { putExtra("patient_age", it) }
+                        }
+
+                        Toast.makeText(this@RequestActivity, "Request submitted!", Toast.LENGTH_SHORT).show()
+                        startActivity(intent)
+                    }
+
+                } catch (e: Exception) {
+                    Toast.makeText(this@RequestActivity, "Failed to create request: ${e.message}", Toast.LENGTH_LONG).show()
+                } finally {
+                    binding.btnSubmitRequest.isEnabled = true
+                    progressBar?.visibility = android.view.View.GONE
+                }
             }
-
-            android.util.Log.d("RequestActivity", "Starting RequestDetailActivity")
-
-
-            startActivity(intent)
-            // Don't call finish() here so user can go back to edit if needed
         }
     }
 
@@ -155,7 +291,7 @@ class RequestActivity : AppCompatActivity() {
         }
 
         if (location.isEmpty()) {
-            showError("Please enter pickup location")
+            showError("Please select pickup location")
             return false
         }
 
@@ -180,7 +316,7 @@ class RequestActivity : AppCompatActivity() {
     }
 }
 
-// Factory classes
+// Factory classes (keep as before)
 class AuthViewModelFactory(private val authRepository: com.example.ambuplus.data.AuthRepository) : ViewModelProvider.Factory {
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {

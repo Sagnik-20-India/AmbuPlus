@@ -20,6 +20,7 @@
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -30,13 +31,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AmbuPlus"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:usesCleartextTraffic="true">
 
         <!-- Main Activity -->
         <activity
             android:name=".uiactivities.main.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AmbuPlus">
+            android:theme="@style/Theme.AmbuPlus"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -47,11 +50,24 @@
         <activity
             android:name=".uiactivities.login.LoginActivity"
             android:exported="false"
-            android:theme="@style/Theme.AmbuPlus" />
+            android:theme="@style/Theme.AmbuPlus"
+            android:launchMode="singleTop" />
 
         <!-- Request Activity -->
         <activity
             android:name=".uiactivities.request.RequestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
+
+        <!-- Map Location Picker Activity (ADD THIS) -->
+        <activity
+            android:name=".uiactivities.request.MapLocationPickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
+
+        <!-- Request Detail Activity -->
+        <activity
+            android:name=".uiactivities.request.RequestDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.AmbuPlus" />
 
@@ -72,7 +88,10 @@
         <activity
             android:name=".uiactivities.driver.DriverProfileActivity"
             android:exported="false" />
-        <activity android:name=".uiactivities.request.RequestDetailActivity" />
+
+<!--        <activity-->
+<!--            android:name=".uiactivities.driver.DriverRequestsActivity"-->
+<!--            android:exported="false" />-->
 
 
         <!-- Add these meta-data for Google Maps -->
@@ -84,6 +103,17 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+<!--        <queries>-->
+<!--            &lt;!&ndash; If you need to check if Google Maps is installed &ndash;&gt;-->
+<!--            <package android:name="com.google.android.apps.maps" />-->
+
+<!--            &lt;!&ndash; If you want to launch phone dialer &ndash;&gt;-->
+<!--            <intent>-->
+<!--                <action android:name="android.intent.action.DIAL" />-->
+<!--                <data android:scheme="tel" />-->
+<!--            </intent>-->
+<!--        </queries>-->
 
     </application>
 

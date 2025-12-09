@@ -24,12 +24,27 @@ class RequestRepository {
     }
 
     suspend fun updateRequestStatus(requestId: Int, status: String, driverId: String? = null) {
-        val updateData = mutableMapOf<String, Any>("status" to status)
-        driverId?.let { updateData["driver_id"] = it }
-
-        supabase.from("requests").update(updateData) {
-            filter {
-                eq("id", requestId)
+        // Build the update data based on whether driverId is provided
+        if (driverId != null) {
+            // Update both status and driver_id
+            supabase.from("requests").update(
+                mapOf(
+                    "status" to status,
+                    "driver_id" to driverId
+                )
+            ) {
+                filter {
+                    eq("id", requestId)
+                }
+            }
+        } else {
+            // Update only status
+            supabase.from("requests").update(
+                mapOf("status" to status)
+            ) {
+                filter {
+                    eq("id", requestId)
+                }
             }
         }
     }
