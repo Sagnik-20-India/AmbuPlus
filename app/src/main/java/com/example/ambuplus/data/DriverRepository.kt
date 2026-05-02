@@ -41,6 +41,24 @@ class DriverRepository {
         }
     }
 
+    // NEW: Get driver by driver ID
+    suspend fun getDriverById(driverId: String): Driver? {
+        return try {
+            println("DEBUG: Fetching driver by ID: $driverId")
+            val result = supabase.from("drivers").select {
+                filter {
+                    eq("id", driverId)
+                }
+            }.decodeSingleOrNull<Driver>()
+            println("DEBUG: Driver found by ID: ${result != null}")
+            result
+        } catch (e: Exception) {
+            println("DEBUG: Error in getDriverById: ${e.message}")
+            e.printStackTrace()
+            null
+        }
+    }
+
     suspend fun updateDriverAvailability(driverId: String, available: Boolean) {
         supabase.from("drivers").update(
             mapOf("available" to available)
@@ -77,48 +95,30 @@ class DriverRepository {
         }.decodeList()
     }
 
-//    // Add to DriverRepository.kt
-//    suspend fun getPendingRequests(): List<Request> {
-//        return supabase.from("requests").select {
-//            filter {
-//                eq("status", "pending")
-//            }
-//            orderBy("timestamp", ascending = false)
-//        }.decodeList()
-//    }
-//
-//    suspend fun acceptRequest(requestId: Int, driverId: String) {
-//        supabase.from("requests").update(
-//            mapOf(
-//                "status" to "accepted",
-//                "driver_id" to driverId
-//            )
-//        ) {
-//            filter {
-//                eq("id", requestId)
-//            }
-//        }
-//    }
-//
-//    // Real-time listener for new requests
-//    fun listenForNewRequests(onNewRequest: (Request) -> Unit) {
-//        supabase.postgrest["requests"].select().subscribe {
-//            it.exception?.let { error ->
-//                println("Realtime error: ${error.message}")
-//            }
-//
-//            it.data?.let { data ->
-//                when (data) {
-//                    is PostgresAction.INSERT -> {
-//                        val newRequest = data.record.decode<Request>()
-//                        if (newRequest.status == "pending") {
-//                            onNewRequest(newRequest)
-//                        }
-//                    }
-//                    else -> {}
-//                }
-//            }
-//        }
-//    }
+    // Update driver's live location for tracking
+    suspend fun updateLiveLocation(driverId: String, locationString: String) {
+        try {
+            supabase.from("drivers").update(
+                mapOf("current_location" to locationString)
+            ) {
+                filter {
+                    eq("id", driverId)
+                }
+            }
+            println("DEBUG: Updated live location for driver $driverId: $locationString")
+        } catch (e: Exception) {
+            println("DEBUG: Error updating live location: ${e.message}")
+        }
+    }
 
+    // NEW: Get driver's current location
+    suspend fun getDriverLocation(driverId: String): String? {
+        return try {
+            val driver = getDriverById(driverId)
+            driver?.currentLocation
+        } catch (e: Exception) {
+            println("DEBUG: Error getting driver location: ${e.message}")
+            null
+        }
+    }
 }

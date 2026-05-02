@@ -16,10 +16,15 @@ import com.example.ambuplus.R
 import com.example.ambuplus.databinding.ActivityMainBinding
 import com.example.ambuplus.uiactivities.login.LoginActivity
 import com.example.ambuplus.uiactivities.request.RequestActivity
+import com.example.ambuplus.uiactivities.request.RequestDetailActivity
 import com.example.ambuplus.uiactivities.driver.DriverRegistrationActivity
+import com.example.ambuplus.uiactivities.driver.DriverRequestsActivity
 import com.example.ambuplus.uiactivities.driver.DriverProfileActivity
 import com.example.ambuplus.uiactivities.driver.DriverRatingsActivity
+import com.example.ambuplus.uiactivities.driver.DriverTrackingActivity
+import com.example.ambuplus.uiactivities.patient.PatientTrackingActivity
 import com.example.ambuplus.models.AuthViewModel
+import com.example.ambuplus.models.Request
 import com.example.ambuplus.models.RequestViewModel
 import com.example.ambuplus.utils.ServiceLocator
 import kotlinx.coroutines.flow.collect
@@ -32,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var requestViewModel: RequestViewModel
     private var isPatientMode = true // Default mode
 
-    // Declare views manually
     private lateinit var patientView: LinearLayout
     private lateinit var driverView: LinearLayout
     private lateinit var btnPatientMode: Button
@@ -46,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardRatings: CardView
     private lateinit var cardDriveHistory: CardView
     private lateinit var cardDriverProfile: CardView
-    private lateinit var cardAvailability: CardView
     private lateinit var progressBar: android.widget.ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +57,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize all views manually
         initializeViews()
 
-        // Initialize ViewModels
         val authFactory = AuthViewModelFactory(ServiceLocator.authRepository)
         authViewModel = ViewModelProvider(this, authFactory)[AuthViewModel::class.java]
 
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         setupObservers()
         setupClickListeners()
-        updateToggleUI() // Set initial state
+        updateToggleUI()
     }
 
     private fun initializeViews() {
@@ -83,7 +84,6 @@ class MainActivity : AppCompatActivity() {
         cardRatings = findViewById(R.id.cardRatings)
         cardDriveHistory = findViewById(R.id.cardDriveHistory)
         cardDriverProfile = findViewById(R.id.cardDriverProfile)
-//        cardAvailability = findViewById(R.id.cardAvailability)
         progressBar = findViewById(R.id.progressBar)
     }
 
@@ -115,9 +115,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun setupClickListeners() {
-        // Mode Toggle Buttons
         btnPatientMode.setOnClickListener {
             if (!isPatientMode) {
                 switchToPatientMode()
@@ -130,7 +128,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Patient Mode Click Listeners
         cardRequestAmbulance.setOnClickListener {
             if (isPatientMode) {
                 navigateToRequestAmbulance()
@@ -143,7 +140,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Other Patient Cards
         cardEmergencyContacts.setOnClickListener {
             if (isPatientMode) {
                 Toast.makeText(this, "Emergency Contacts - Coming Soon", Toast.LENGTH_SHORT).show()
@@ -162,10 +158,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Driver Mode Click Listeners
         cardViewRequests.setOnClickListener {
             if (!isPatientMode) {
-                Toast.makeText(this, "View Requests - Coming Soon", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, DriverRequestsActivity::class.java)
+                startActivity(intent)
             }
         }
 
@@ -175,7 +171,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // In setupClickListeners(), update the driver profile click listener:
         cardDriverProfile.setOnClickListener {
             if (!isPatientMode) {
                 val intent = Intent(this, DriverProfileActivity::class.java)
@@ -189,7 +184,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-
     }
 
     private fun switchToPatientMode() {
@@ -197,7 +191,6 @@ class MainActivity : AppCompatActivity() {
         updateToggleUI()
         patientView.visibility = View.VISIBLE
         driverView.visibility = View.GONE
-        // Load patient data
         authViewModel.currentUser.value?.let { user ->
             requestViewModel.loadUserRequests(user.id)
         }
@@ -219,14 +212,12 @@ class MainActivity : AppCompatActivity() {
                 println("DEBUG: Driver registration check - User: ${currentUser.id}, Registered: $isRegistered")
 
                 if (isRegistered) {
-                    // User is already a driver - show driver dashboard
                     isPatientMode = false
                     updateToggleUI()
                     binding.patientView.visibility = View.GONE
                     binding.driverView.visibility = View.VISIBLE
                     Toast.makeText(this@MainActivity, "Driver Mode Activated", Toast.LENGTH_SHORT).show()
                 } else {
-                    // User is not registered as driver - navigate to registration
                     println("DEBUG: Navigating to driver registration")
                     navigateToDriverRegistration()
                 }
@@ -247,13 +238,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateToggleUI() {
         if (isPatientMode) {
-            // Patient mode active
             btnPatientMode.setBackgroundColor(getColor(R.color.primary_color))
             btnPatientMode.setTextColor(getColor(android.R.color.white))
             btnDriverMode.setBackgroundColor(getColor(android.R.color.white))
             btnDriverMode.setTextColor(getColor(R.color.primary_color))
         } else {
-            // Driver mode active
             btnDriverMode.setBackgroundColor(getColor(R.color.primary_color))
             btnDriverMode.setTextColor(getColor(android.R.color.white))
             btnPatientMode.setBackgroundColor(getColor(android.R.color.white))
@@ -288,7 +277,6 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-// Factory classes (keep your existing ones)
 class AuthViewModelFactory(private val authRepository: com.example.ambuplus.data.AuthRepository) : ViewModelProvider.Factory {
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
@@ -308,28 +296,3 @@ class RequestViewModelFactory(private val requestRepository: com.example.ambuplu
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
-
-//        cardAvailability.setOnClickListener {
-//            if (!isPatientMode) {
-//                val userId = authViewModel.currentUser.value?.id ?: ""
-//                lifecycleScope.launch {
-//                    try {
-//                        // First, get the driver record for this user
-//                        val driver = ServiceLocator.driverRepository.getDriverByUserId(userId)
-//                        if (driver != null) {
-//                            // Toggle availability
-//                            val newAvailability = !driver.available
-//                            ServiceLocator.driverRepository.updateDriverAvailability(driver.id!!, newAvailability)
-//
-//                            val status = if (newAvailability) "available" else "unavailable"
-//                            Toast.makeText(this@MainActivity, "You're now $status for requests", Toast.LENGTH_SHORT).show()
-//                        } else {
-//                            Toast.makeText(this@MainActivity, "Driver profile not found", Toast.LENGTH_SHORT).show()
-//                        }
-//                    } catch (e: Exception) {
-//                        Toast.makeText(this@MainActivity, "Failed to update availability: ${e.message}", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            }
-//        }

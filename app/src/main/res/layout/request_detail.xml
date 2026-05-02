@@ -114,23 +114,59 @@
             android:textStyle="bold"
             android:layout_marginBottom="12dp" />
 
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView7"
+        <org.osmdroid.views.MapView
+            android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginBottom="16dp" />
 
         <!-- Action Buttons -->
-        <Button
-            android:id="@+id/btnCancelRequest"
+        <!-- Action Buttons -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="CANCEL REQUEST"
-            android:background="#757575"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btnReCenter"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="📍 RECENTER"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="#2196F3"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnCancelRequest"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:text="❌ CANCEL"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="#F44336"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnExit"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="🚪 EXIT"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="#FF9800"
+                android:textColor="#FFFFFF" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

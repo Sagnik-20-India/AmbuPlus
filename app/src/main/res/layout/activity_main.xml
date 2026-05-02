@@ -226,7 +226,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Request History"
+                        android:text="Ride History"
                         android:textSize="14sp"
                         android:textColor="#000000"
                         android:textStyle="bold"
@@ -280,14 +280,14 @@
         </android.widget.GridLayout>
 
         <!-- Recent Requests -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Recent Requests"
-            android:textSize="18sp"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Recent Requests"-->
+<!--            android:textSize="18sp"-->
+<!--            android:textColor="#000000"-->
+<!--            android:textStyle="bold"-->
+<!--            android:layout_marginBottom="16dp" />-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRecentRequests"

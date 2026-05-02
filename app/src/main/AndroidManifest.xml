@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Optional: For emergency calls -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -16,6 +15,10 @@
     <!-- For background location (if needed for driver tracking) -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
+    <!-- For offline map caching with osmdroid -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <!-- Hardware Features (FIX for the warning) -->
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
@@ -23,6 +26,7 @@
     <uses-feature android:name="android.hardware.location.network" android:required="false" />
 
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -34,16 +38,27 @@
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
 
-        <!-- Main Activity -->
+        <!-- Splash Activity (NEW LAUNCHER) -->
         <activity
-            android:name=".uiactivities.main.MainActivity"
+            android:name=".uiactivities.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.AmbuPlus"
-            android:launchMode="singleTop">
+            android:theme="@style/Theme.AmbuPlus">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".uiactivities.main.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus"
+            android:launchMode="singleTop">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
 
         <!-- Login Activity -->
@@ -53,13 +68,26 @@
             android:theme="@style/Theme.AmbuPlus"
             android:launchMode="singleTop" />
 
+        <activity
+            android:name=".uiactivities.login.ResetPasswordActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AmbuPlus">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ambuplus" android:host="reset-password" />
+            </intent-filter>
+        </activity>
+
         <!-- Request Activity -->
         <activity
             android:name=".uiactivities.request.RequestActivity"
             android:exported="false"
             android:theme="@style/Theme.AmbuPlus" />
 
-        <!-- Map Location Picker Activity (ADD THIS) -->
+        <!-- Map Location Picker Activity -->
         <activity
             android:name=".uiactivities.request.MapLocationPickerActivity"
             android:exported="false"
@@ -71,7 +99,7 @@
             android:exported="false"
             android:theme="@style/Theme.AmbuPlus" />
 
-        <!-- Driver Activity -->
+        <!-- Driver Activities -->
         <activity
             android:name=".uiactivities.driver.DriverActivity"
             android:exported="false"
@@ -89,31 +117,37 @@
             android:name=".uiactivities.driver.DriverProfileActivity"
             android:exported="false" />
 
-<!--        <activity-->
-<!--            android:name=".uiactivities.driver.DriverRequestsActivity"-->
-<!--            android:exported="false" />-->
+        <!-- Driver Requests Activity -->
+        <activity
+            android:name=".uiactivities.driver.DriverRequestsActivity"
+            android:exported="false" />
 
+        <!-- Driver Tracking Activity (NEW - for live ambulance tracking) -->
+        <activity
+            android:name=".uiactivities.driver.DriverTrackingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
 
-        <!-- Add these meta-data for Google Maps -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+        <!-- Patient Tracking Activity (NEW - for patient to track ambulance) -->
+        <activity
+            android:name=".uiactivities.patient.PatientTrackingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AmbuPlus" />
+
+        <!-- Add these meta-data for Google Maps (keep if you still need Google Maps) -->
+<!--        <meta-data-->
+<!--            android:name="com.google.android.geo.API_KEY"-->
+<!--            android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />-->
 
         <!-- Location service requirements -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-<!--        <queries>-->
-<!--            &lt;!&ndash; If you need to check if Google Maps is installed &ndash;&gt;-->
-<!--            <package android:name="com.google.android.apps.maps" />-->
-
-<!--            &lt;!&ndash; If you want to launch phone dialer &ndash;&gt;-->
-<!--            <intent>-->
-<!--                <action android:name="android.intent.action.DIAL" />-->
-<!--                <data android:scheme="tel" />-->
-<!--            </intent>-->
-<!--        </queries>-->
+        <!-- osmdroid configuration for offline map caching -->
+        <meta-data
+            android:name="osmdroid.cache.path"
+            android:value="osmdroid_cache" />
 
     </application>
 

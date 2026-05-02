@@ -18,6 +18,19 @@
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
+    <!-- Resume Active Trip Button (appears only when there's an active trip) -->
+    <Button
+        android:id="@+id/btnResumeTrip"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Resume Active Trip"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
     <!-- Refresh Button -->
     <Button
         android:id="@+id/btnRefresh"
@@ -34,18 +47,28 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRequests"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <!-- Empty State -->
-    <TextView
-        android:id="@+id/tvEmpty"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="No pending requests available"
-        android:textSize="18sp"
-        android:textColor="#666666"
-        android:gravity="center"
-        android:visibility="gone" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No pending requests available"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:padding="16dp" />
+
+    </ScrollView>
 
     <!-- Progress Bar -->
     <ProgressBar
