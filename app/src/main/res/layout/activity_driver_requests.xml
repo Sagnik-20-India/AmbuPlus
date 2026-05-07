@@ -18,6 +18,19 @@
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
+<!--    &lt;!&ndash; Temporary Debug Button - Remove after fix &ndash;&gt;-->
+<!--    &lt;!&ndash; Debug Button to Clear Stuck Resume Trip &ndash;&gt;-->
+<!--    <Button-->
+<!--        android:id="@+id/btnClearStuckTrip"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="48dp"-->
+<!--        android:text="🔧 CLEAR STUCK RESUME TRIP"-->
+<!--        android:textSize="12sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:background="#FF9800"-->
+<!--        android:textColor="#FFFFFF"-->
+<!--        android:layout_marginBottom="8dp" />-->
+
     <!-- Resume Active Trip Button (appears only when there's an active trip) -->
     <Button
         android:id="@+id/btnResumeTrip"

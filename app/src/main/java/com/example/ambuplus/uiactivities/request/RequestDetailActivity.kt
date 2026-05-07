@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.delay
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.ambuplus.databinding.RequestDetailBinding
@@ -96,14 +98,18 @@ class RequestDetailActivity : AppCompatActivity() {
 
     private fun checkRequestStatus() {
         lifecycleScope.launch {
-            try {
-                val request = ServiceLocator.requestRepository.getRequestById(requestId)
-                if (request?.status == "accepted") {
-                    Toast.makeText(this@RequestDetailActivity, "Ambulance is on the way! Opening tracker...", Toast.LENGTH_LONG).show()
-                    navigateToPatientTracking(request)
+            while (isActive) {
+                try {
+                    val request = ServiceLocator.requestRepository.getRequestById(requestId)
+                    if (request?.status == "accepted") {
+                        Toast.makeText(this@RequestDetailActivity, "Ambulance is on the way! Opening tracker...", Toast.LENGTH_LONG).show()
+                        navigateToPatientTracking(request)
+                        break
+                    }
+                    delay(3000) // check every 3 seconds
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
@@ -240,9 +246,15 @@ class RequestDetailActivity : AppCompatActivity() {
 
 
 
+
+
+
+
+
 //package com.example.ambuplus.uiactivities.request
 //
 //import android.app.AlertDialog
+//import android.content.Context
 //import android.content.Intent
 //import android.os.Bundle
 //import android.widget.Toast
@@ -265,6 +277,7 @@ class RequestDetailActivity : AppCompatActivity() {
 //    private var requestId: Int = -1
 //    private var selectedLat: Double? = null
 //    private var selectedLng: Double? = null
+//    private var isEmergencyMode = false
 //
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
@@ -281,6 +294,13 @@ class RequestDetailActivity : AppCompatActivity() {
 //        requestId = intent.getIntExtra("request_id", -1)
 //        selectedLat = intent.getDoubleExtra("selected_lat", 0.0).takeIf { it != 0.0 }
 //        selectedLng = intent.getDoubleExtra("selected_lng", 0.0).takeIf { it != 0.0 }
+//        isEmergencyMode = intent.getBooleanExtra("is_emergency_mode", false)
+//
+//        // If in emergency mode, save the request ID for persistence
+//        if (isEmergencyMode && requestId != -1) {
+//            val prefs = getSharedPreferences("EmergencyPrefs", Context.MODE_PRIVATE)
+//            prefs.edit().putInt("emergency_active_request_id", requestId).apply()
+//        }
 //
 //        setupMap()
 //        displayRequestInfo()
@@ -349,6 +369,7 @@ class RequestDetailActivity : AppCompatActivity() {
 //            putExtra("pickup_lng", coords?.second ?: 0.0)
 //            putExtra("patient_name", request.patientName ?: "Patient")
 //            putExtra("driver_id", request.driverId ?: "")
+//            putExtra("is_emergency_mode", isEmergencyMode)
 //        }
 //        startActivity(intent)
 //        finish()
@@ -424,7 +445,13 @@ class RequestDetailActivity : AppCompatActivity() {
 //        binding.tvLocation.text = "Location: $location"
 //        binding.tvEmergencyLevel.text = "Emergency Level: ${emergencyLevel.uppercase()}"
 //        binding.tvMedicalNotes.text = "Notes: $medicalNotes"
-//        binding.tvStatus.text = "Status: Finding ambulance..."
+//
+//        // Show different status message for emergency mode
+//        if (isEmergencyMode) {
+//            binding.tvStatus.text = "🚨 EMERGENCY REQUEST - Finding ambulance..."
+//        } else {
+//            binding.tvStatus.text = "Status: Finding ambulance..."
+//        }
 //    }
 //
 //    private fun cancelRequest() {
@@ -436,6 +463,13 @@ class RequestDetailActivity : AppCompatActivity() {
 //        lifecycleScope.launch {
 //            try {
 //                ServiceLocator.requestRepository.updateRequestStatus(requestId, "cancelled")
+//
+//                // Clear saved emergency request ID if in emergency mode
+//                if (isEmergencyMode) {
+//                    val prefs = getSharedPreferences("EmergencyPrefs", Context.MODE_PRIVATE)
+//                    prefs.edit().remove("emergency_active_request_id").apply()
+//                }
+//
 //                Toast.makeText(this@RequestDetailActivity, "Request cancelled successfully", Toast.LENGTH_SHORT).show()
 //                finish()
 //            } catch (e: Exception) {
